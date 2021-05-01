@@ -6,8 +6,6 @@ or review the trashword database
 or delete an entry in the trashword database
 
 TODO : Allow parrallel download
-TODO : use ENV variable to pass SFTP credentials and telegram user
-TODO : Improve trashword usage
 """
 
 
@@ -19,28 +17,25 @@ from youtube_dl import YoutubeDL
 import os
 import editdistance
 import eyed3
-import numpy as np
-from sklearn.cluster import MeanShift, estimate_bandwidth
-import sklearn
-import shutil
+import sys
 import time
+import magic
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-SFTPPASSWORD = "SecurePasswordPlease"
-SFTPUSERNAME = "nathann"
-HOST = "192.168.1.10"
-SFTPREMOTEBASEPATH = "sharedfolders/DATAPOOL/NAS/nathann/music/"
-TELEGRAMID = "186683583"
-TELEGRAMBOTTOKEN = "1315556556:AAGmAN6tE7UFERaSmyZkJfZolWZauHHHfSI"
-
 
 class scope():
-    def __init__(self):
+    def __init__(self, SFTPPASSWORD, SFTPUSERNAME, HOST, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN):
         self.STATE = 0
         self.video_metadata = {}
+        self.SFTPPASSWORD = SFTPPASSWORD
+        self.SFTPUSERNAME = SFTPUSERNAME
+        self.HOST = HOST
+        self.SFTPREMOTEBASEPATH = SFTPREMOTEBASEPATH
+        self.TELEGRAMID = TELEGRAMID
+        self.TELEGRAMBOTTOKEN = TELEGRAMBOTTOKEN
 
     def add_trashword(self, update, context):
         """
@@ -121,7 +116,7 @@ class scope():
         """
         print(str(update.message.chat_id))
         print(update.message.text)
-        if str(update.message.chat_id) in self.whitelist:  # allow only a specific set of user to issue command
+        if str(update.message.chat_id) is self.TELEGRAMID:  # allow only a specific set of user to issue command
             update.message.reply_text(help_message)
 
     def download(self, update, context, video_metadata):
@@ -149,9 +144,10 @@ class scope():
             artist = video_metadata["user_choice"].split("-")[0].strip()
             song = video_metadata["user_choice"].split("-")[1].strip()
         # Preparing Path
-        basepath_artist = os.path.join(SFTPREMOTEBASEPATH, artist)
+        basepath_artist = os.path.join(self.SFTPREMOTEBASEPATH, artist)
         path_and_mp3_filename = os.path.join(basepath_artist, artist + " - " + song + ".mp3")
         mp3_filename = artist + " - " + song + ".mp3"
+        mp4_filename = artist + " - " + song + ".mp4"
         #Downloading video
         youtube_dl_opts = \
             {
@@ -163,14 +159,14 @@ class scope():
                         'preferredcodec': 'mp3',
                         'preferredquality': '320',
                     }],
-                'outtmpl': mp3_filename
+                'outtmpl': mp4_filename
             }
         with YoutubeDL(youtube_dl_opts) as ydl:
             info_dict = ydl.extract_info(video_metadata["url"], download=False)
             video_id = info_dict.get("id", None)
             video_title = info_dict.get('title', None)
-            ydl.download([video_metadata["url"]])
-            print(video_title)
+            ydl.download([video_metadata["url"]]) # the video is downloaded as mp4 by youtube-dl, converted to mp3
+            print(video_title) # then the mp4 is automatically deleted
             print(video_id)
 
         print(artist)
@@ -178,37 +174,44 @@ class scope():
         print(video_metadata["url"])
         #adding metadata
         try:
-            time.sleep(1)
             audiofile = eyed3.load(mp3_filename)
+
             audiofile.tag.artist = artist
             audiofile.tag.title = song
             audiofile.tag.url = video_metadata["url"]
             audiofile.tag.save()
-        except:
+        except Exception as e:
+            print(e)
             print("metadata couldnt be updated...")
 
         # Copying the file to the server
-        print("moving " + video_title + "-" + video_id + ".mp3" + " to " + path_and_mp3_filename)
+        print("moving " + mp3_filename + " to " + path_and_mp3_filename)
         try:
-            srv = pysftp.Connection(host=HOST, username=SFTPUSERNAME, password=SFTPPASSWORD)
-            with srv.cd(SFTPREMOTEBASEPATH):  # chdir to music folder
-                if not srv.exists(basepath_artist): # check if artist aldready have folder and create it if needed
-                    try:
-                        os.mkdir(basepath_artist)
-                    except OSError:
-                        print("Creation of the directory %s failed" % basepath_artist)
+            srv = pysftp.Connection(host=self.HOST, username=self.SFTPUSERNAME, password=self.SFTPPASSWORD)
+            print("Connected to Host")
             try:
-                with srv.cd(basepath_artist):  # chdir to the artist folder
-                    srv.put(mp3_filename, confirm=True)  # upload file (confirm the size) # this function is blocking
-            except:
-                update.message.reply_text(artist + " - " + song + " aldready exist !")
-            os.remove(mp3_filename) # otherwise the file might be deleted before the upload end
+                with srv.cd(self.SFTPREMOTEBASEPATH):  # chdir to music folder
+                    print("Retrieving music folder")
+                    if not srv.exists(basepath_artist): # check if artist aldready have folder and create it if needed
+                        try:
+                            srv.makedirs(basepath_artist)
+                        except Exception as e:
+                            print(e)
+                            print("Creation of the directory %s failed" % basepath_artist)
+                try:
+                    with srv.cd(basepath_artist):  # chdir to the artist folder
+                        srv.put(mp3_filename, confirm=True)  # upload file (confirm the size) # this function is blocking
+                except:
+                    update.message.reply_text(artist + " - " + song + " aldready exist !")
+                os.remove(mp3_filename) # otherwise the file might be deleted before the upload end
+            finally:
+                # Closes the connection
+                srv.close()
 
-        except:
+        except Exception as e:
+            print(e)
             print("error in SFTP connection")
-        finally:
-            # Closes the connection
-            srv.close()
+
         update.message.reply_text(artist + " " + song + " added !")
 
     def getPossibleTrackMetadata(self, videoTitle):
@@ -216,6 +219,13 @@ class scope():
         # remove useless word from video title
         word_blob = list(videoTitle.split(" "))
         for word in word_blob:
+            word = word.replace('"', "")
+            word = word.replace("'", "")
+            word = word.replace("'", "")
+            word = word.replace("]", "")
+            word = word.replace("[", "")
+            word = word.replace("(", "")
+            word = word.replace(")", "")
             for trashword in self.load_trashword():
                 if editdistance.eval(word.lower(), trashword.lower()) < 1:
                     try:
@@ -250,21 +260,10 @@ class scope():
                     possible_artist = possible_artist.strip()
                 i = i + 1
 
-        # list all known artists
-        subfolders = os.listdir(self.basepath)
-        artists = []
-        for folder in subfolders:
-            if os.path.isdir(folder):
-                artists.append(folder)
-
-        # check if possible filename is from a known artists
+        # generate possible track name
         possible_file_name = []
-        if possible_title in artists:  # in case the artist and track name are inverted
-            possible_file_name.append(possible_title + " - " + possible_artist)
-            possible_file_name.append(possible_artist + " - " + possible_title)
-        else:
-            possible_file_name.append(possible_artist + " - " + possible_title)
-            possible_file_name.append(possible_title + " - " + possible_artist)
+        possible_file_name.append(possible_artist + " - " + possible_title)
+        possible_file_name.append(possible_title + " - " + possible_artist)
 
         return possible_file_name
 
@@ -286,7 +285,8 @@ class scope():
         """
 
         print(str(update.message.chat_id))
-        if str(update.message.chat_id) in self.whitelist:  # allow only a specific set of user to issue command
+        print(self.TELEGRAMID)
+        if str(update.message.chat_id) == self.TELEGRAMID:  # allow only a specific set of user to issue command
             if self.STATE == 0:
                 if self.is_supported(update.message.text):
                     youtube_dl_opts = {}
@@ -331,6 +331,8 @@ class scope():
             if self.STATE == 2:
                 update.message.reply_text("The previous song is still downloading. please wait")
             print(update.message.text)
+        else:
+            print("User not in whitelist")
 
     def is_supported(self, url):
         extractors = youtube_dl.extractor.gen_extractors()
@@ -341,15 +343,42 @@ class scope():
 
 
 def main():
+    try :
+        SFTPPASSWORD = os.environ['SFTPPASSWORD']
+        SFTPUSERNAME = os.environ['SFTPUSERNAME']
+        HOST = os.environ['SFTPHOST']
+        SFTPREMOTEBASEPATH = os.environ['SFTPREMOTEBASEPATH']
+        TELEGRAMID = os.environ['TELEGRAMID']
+        TELEGRAMBOTTOKEN = os.environ['TELEGRAMBOTTOKEN']
+    except:
+        try:
+            HOST = sys.argv[1]
+            SFTPUSERNAME = sys.argv[2]
+            SFTPPASSWORD = sys.argv[3]
+            SFTPREMOTEBASEPATH = sys.argv[4]
+            TELEGRAMID = sys.argv[5]
+            TELEGRAMBOTTOKEN = sys.argv[6]
+        except:
+            print("Either set the env variable or provided the argument to the command line")
+            print("You MUST use the following order for the command line argument")
+            print("TelegramMusic.py 102.168.1.10 nemo superSecureSFTPPassword /path/to/the/remote/music/folder telegramIDOftheUser TelegramBotToken")
+            print("otherwise use the followings ENV variable : ")
+            print("SFTPPASSWORD")
+            print("SFTPUSERNAME")
+            print("SFTPHOST")
+            print("SFTPREMOTEBASEPATH")
+            print("TELEGRAMID")
+            print("TELEGRAMBOTTOKEN")
+
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
     updater = Updater(TELEGRAMBOTTOKEN, use_context=True)
-    whitelist = [TELEGRAMID] # allowed account to use this tool
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    sc = scope()
+    sc = scope(SFTPPASSWORD, SFTPUSERNAME, HOST, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN)
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("help", sc.welcome))
     dp.add_handler(CommandHandler("deltw", sc.del_trashword))
