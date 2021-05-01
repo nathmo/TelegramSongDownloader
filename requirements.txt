@@ -3,3 +3,4 @@ editdistance
 eyed3
 youtube_dl
 pysftp
+python-magic
