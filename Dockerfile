@@ -1,10 +1,12 @@
 FROM alpine:latest
 ADD TelegramMusic.py /
-RUN apk update && \
-    apk upgrade && \
-    apk add python3
-    apk add ffmpeg
-    apk add py3-pip
+ADD requirements.txt /
+ADD trashwords.txt /
+RUN apk update
+RUN apk upgrade
+RUN apk add python3
+RUN apk add ffmpeg
+RUN apk add py3-pip
 RUN pip3 install -r requirements.txt
 ENV SFTPPASSWORD=""
 ENV SFTPUSERNAME=""
