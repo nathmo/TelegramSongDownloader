@@ -5,7 +5,6 @@ or send a commend to edit the traswords database
 or review the trashword database
 or delete an entry in the trashword database
 
-TODO : File are saved at a defined location over sftp
 TODO : Allow parrallel download
 TODO : use ENV variable to pass SFTP credentials and telegram user
 TODO : Improve trashword usage
@@ -33,11 +32,12 @@ logger = logging.getLogger(__name__)
 SFTPPASSWORD = "SecurePasswordPlease"
 SFTPUSERNAME = "nathann"
 HOST = "192.168.1.10"
+SFTPREMOTEBASEPATH = "sharedfolders/DATAPOOL/NAS/nathann/music/"
+TELEGRAMID = "186683583"
+TELEGRAMBOTTOKEN = "1315556556:AAGmAN6tE7UFERaSmyZkJfZolWZauHHHfSI"
+
 
 class scope():
-    whitelist = ["186683583"]
-    basepath = "/mnt/music"
-
     def __init__(self):
         self.STATE = 0
         self.video_metadata = {}
@@ -136,7 +136,7 @@ class scope():
         :param context:
         :return:
         """
-
+        # extracting song title
         if video_metadata["user_choice"] == "1":
             artist = video_metadata["1"].split("-")[0].strip()
             song = video_metadata["1"].split("-")[1].strip()
@@ -148,25 +148,11 @@ class scope():
             # user supplied the full title
             artist = video_metadata["user_choice"].split("-")[0].strip()
             song = video_metadata["user_choice"].split("-")[1].strip()
-
-        basepath_artist = os.path.join(self.basepath, artist)
+        # Preparing Path
+        basepath_artist = os.path.join(SFTPREMOTEBASEPATH, artist)
         path_and_mp3_filename = os.path.join(basepath_artist, artist + " - " + song + ".mp3")
-
-        srv = pysftp.Connection(host=HOST, username=SFTPUSERNAME,
-                                password=SFTPPASSWORD, log="./temp/pysftp.log")
-
-        with srv.cd('public'):  # chdir to public
-            srv.put('C:\Users\XXX\Dropbox\test.txt')  # upload file to nodejs/
-
-        # Closes the connection
-        srv.close()
-
-        if not os.path.isdir(basepath_artist):
-            try:
-                os.mkdir(basepath_artist)
-            except OSError:
-                print("Creation of the directory %s failed" % basepath_artist)
-        #   'outtmpl': path_and_mp3_filename,
+        mp3_filename = artist + " - " + song + ".mp3"
+        #Downloading video
         youtube_dl_opts = \
             {
 
@@ -177,6 +163,7 @@ class scope():
                         'preferredcodec': 'mp3',
                         'preferredquality': '320',
                     }],
+                'outtmpl': mp3_filename
             }
         with YoutubeDL(youtube_dl_opts) as ydl:
             info_dict = ydl.extract_info(video_metadata["url"], download=False)
@@ -185,40 +172,43 @@ class scope():
             ydl.download([video_metadata["url"]])
             print(video_title)
             print(video_id)
-        # url is supported and can be downloaded
-        # Create MP3File instance.
-        print("moving " + video_title + "-" + video_id + ".mp3" + " to " + path_and_mp3_filename)
-        auto_generated_path = ""
-        for path in os.listdir():
-            if os.path.isfile(path):
-                if path.endswith(".mp3"):
-                    auto_generated_path = path
-        print(auto_generated_path)
-        print(path_and_mp3_filename)
 
         print(artist)
         print(song)
         print(video_metadata["url"])
+        #adding metadata
         try:
             time.sleep(1)
-            audiofile = eyed3.load(auto_generated_path)
+            audiofile = eyed3.load(mp3_filename)
             audiofile.tag.artist = artist
             audiofile.tag.title = song
             audiofile.tag.url = video_metadata["url"]
-
             audiofile.tag.save()
         except:
             print("metadata couldnt be updated...")
+
+        # Copying the file to the server
+        print("moving " + video_title + "-" + video_id + ".mp3" + " to " + path_and_mp3_filename)
         try:
-            shutil.move(auto_generated_path, path_and_mp3_filename)
+            srv = pysftp.Connection(host=HOST, username=SFTPUSERNAME, password=SFTPPASSWORD)
+            with srv.cd(SFTPREMOTEBASEPATH):  # chdir to music folder
+                if not srv.exists(basepath_artist): # check if artist aldready have folder and create it if needed
+                    try:
+                        os.mkdir(basepath_artist)
+                    except OSError:
+                        print("Creation of the directory %s failed" % basepath_artist)
+            try:
+                with srv.cd(basepath_artist):  # chdir to the artist folder
+                    srv.put(mp3_filename, confirm=True)  # upload file (confirm the size) # this function is blocking
+            except:
+                update.message.reply_text(artist + " - " + song + " aldready exist !")
+            os.remove(mp3_filename) # otherwise the file might be deleted before the upload end
+
         except:
-            update.message.reply_text(artist + " - " + song + " aldready exist !")
-            os.remove(auto_generated_path)
-
-        while not os.path.isfile(path_and_mp3_filename):
-            i = 0  # wait for the file to be moved...
-
-        # After the tags are edited, you must call the save method.
+            print("error in SFTP connection")
+        finally:
+            # Closes the connection
+            srv.close()
         update.message.reply_text(artist + " " + song + " added !")
 
     def getPossibleTrackMetadata(self, videoTitle):
@@ -355,8 +345,8 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1315556556:AAGmAN6tE7UFERaSmyZkJfZolWZauHHHfSI", use_context=True)
-    whitelist = ["186683583"] # allowed account to use this tool
+    updater = Updater(TELEGRAMBOTTOKEN, use_context=True)
+    whitelist = [TELEGRAMID] # allowed account to use this tool
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     sc = scope()
