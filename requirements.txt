@@ -3,4 +3,3 @@ editdistance
 eyed3
 youtube_dl
 pysftp
-sudo apt-get install ffmpeg
