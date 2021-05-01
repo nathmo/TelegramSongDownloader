@@ -3,6 +3,7 @@ video
 ultra
 music
 lyrics
+lyric
 original
 hd
 audio

@@ -219,19 +219,24 @@ class scope():
         # remove useless word from video title
         word_blob = list(videoTitle.split(" "))
         for word in word_blob:
-            word = word.replace('"', "")
+            for trashword in self.load_trashword():
+                if editdistance.eval(word.lower(), trashword.lower()) <= 1:
+                    try:
+                        word_blob.remove(word)
+                    except:
+                        print("aldready removed")
+        word_blob2 = []
+        for word in word_blob:
+            word = word.replace('"', "")  # This filtering method is durty and requier imprivement for case like ft. XXX
             word = word.replace("'", "")
             word = word.replace("'", "")
             word = word.replace("]", "")
             word = word.replace("[", "")
             word = word.replace("(", "")
             word = word.replace(")", "")
-            for trashword in self.load_trashword():
-                if editdistance.eval(word.lower(), trashword.lower()) < 1:
-                    try:
-                        word_blob.remove(word)
-                    except:
-                        print("aldready removed")
+            word_blob2.append(word)
+
+        word_blob = word_blob2
         print(word_blob)
         possible_title = ""
         possible_artist = ""
