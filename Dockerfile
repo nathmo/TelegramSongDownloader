@@ -5,6 +5,7 @@ ADD trashwords.txt /
 RUN apk update
 RUN apk upgrade
 RUN apk add gcc
+RUN apk add g++
 RUN apk add make
 RUN apk add musl-dev
 RUN apk add cargo
