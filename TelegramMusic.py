@@ -185,7 +185,9 @@ class scope():
         # Copying the file to the server
         print("moving " + mp3_filename + " to " + path_and_mp3_filename)
         try:
-            srv = pysftp.Connection(host=self.HOST, username=self.SFTPUSERNAME, password=self.SFTPPASSWORD)
+            cnopts = pysftp.CnOpts()
+            cnopts.hostkeys = None
+            srv = pysftp.Connection(host=self.HOST, username=self.SFTPUSERNAME, password=self.SFTPPASSWORD, cnopts=cnopts)
             print("Connected to Host")
             try:
                 with srv.cd(self.SFTPREMOTEBASEPATH):  # chdir to music folder
