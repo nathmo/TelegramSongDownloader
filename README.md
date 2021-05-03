@@ -71,5 +71,8 @@ TELEGRAMID="" this is the telgram id of the account that will use this app. you 
 TELEGRAMBOTTOKEN="" replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
 ```
 
+```docker build -t telegrammusic .```
+
+
 ### Running
 either lauch it using a docker command or connect to 127.0.0.1:9000 on the portainer interface and use that to execute the container
