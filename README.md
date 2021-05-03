@@ -14,43 +14,48 @@ wait and enjoy for your music to be send to the SFTP server (your NAS for instan
 
 ## Normal Installation on debian like linux
 ### Cloning the repo
-$ git clone https://github.com/nathmo/TelegramSongDownloader.git
-$ cd TelegramSongDownloader
+```git clone https://github.com/nathmo/TelegramSongDownloader.git ```
+```cd TelegramSongDownloader```
 ### Installings dependencies
-$ sudo apt-get install python3, ffmpeg, python3-pip
-$ pip3 install -r requirements.txt
+```sudo apt-get install python3, ffmpeg, python3-pip```
+```pip3 install -r requirements.txt```
 ### Running
-$ python3 TelegramMusic.py SFTPHOST SFTPUSERNAME SFTPPASSWORD REMOTEPATHTOMUSICFOLDER CLIENTELEGRAMID BOTTELEGRAMID
+```python3 TelegramMusic.py SFTPHOST SFTPUSERNAME SFTPPASSWORD REMOTEPATHTOMUSICFOLDER CLIENTELEGRAMID BOTTELEGRAMID```
 (do not change the order of the value)
-$ SFTPPASSWORD this is your ssh password
-$ SFTPUSERNAME this is your ssh username
-$ SFTPHOST this is the SFTP Host (any server with SSH enabled will do)
-$ SFTPREMOTEBASEPATH replace this value with the absolute path where you want to store the song on your server
-$ TELEGRAMID this is the telgram id of the account that will use this app. you can find it [there | https://www.technobezz.com/how-to-find-user-ids-in-telegram/]
-$ TELEGRAMBOTTOKEN replace with the value you get using the [bot Father | https://www.telegram-group.com/en/blog/create-bot-telegram/]
+```
+SFTPPASSWORD this is your ssh password
+SFTPUSERNAME this is your ssh username
+SFTPHOST this is the SFTP Host (any server with SSH enabled will do)
+SFTPREMOTEBASEPATH replace this value with the absolute path where you want to store the song on your server
+TELEGRAMID this is the telgram id of the account that will use this app. you can find it [there](https://www.technobezz.com/how-to-find-user-ids-in-telegram/)
+TELEGRAMBOTTOKEN replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
+```
+
 ## Docker Installation
 ### Cloning the repo
-$ git clone https://github.com/nathmo/TelegramSongDownloader.git
-$ cd TelegramSongDownloader
+```git clone https://github.com/nathmo/TelegramSongDownloader.git```
+```cd TelegramSongDownloader```
 ### Installings dependencies
 
-$ curl -fsSL https://get.docker.com -o get-docker.sh
-$ sudo sh get-docker.sh
-$ sudo usermod -aG docker pi
-$ docker volume create portainer_data
-$ docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+```curl -fsSL https://get.docker.com -o get-docker.sh```
+```sudo sh get-docker.sh```
+```sudo usermod -aG docker pi```
+```docker volume create portainer_data```
+```docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce```
 
 ### Building the image
 Edit the settings and fill the followings value : 
 
-$ nano Dockerfile
+```nano Dockerfile```
 
-$ SFTPPASSWORD="" this is your ssh password
-$ SFTPUSERNAME="" this is your ssh username
-$ SFTPHOST="" this is the SFTP Host (any server with SSH enabled will do)
-$ SFTPREMOTEBASEPATH="" replace this value with the absolute path where you want to store the song on your server
-$ TELEGRAMID="" this is the telgram id of the account that will use this app. you can find it [there | https://www.technobezz.com/how-to-find-user-ids-in-telegram/]
-$ TELEGRAMBOTTOKEN="" replace with the value you get using the [bot Father | https://www.telegram-group.com/en/blog/create-bot-telegram/]
+```
+SFTPPASSWORD="" this is your ssh password
+SFTPUSERNAME="" this is your ssh username
+SFTPHOST="" this is the SFTP Host (any server with SSH enabled will do)
+SFTPREMOTEBASEPATH="" replace this value with the absolute path where you want to store the song on your server
+TELEGRAMID="" this is the telgram id of the account that will use this app. you can find it [there](https://www.technobezz.com/how-to-find-user-ids-in-telegram/)
+TELEGRAMBOTTOKEN="" replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
+```
 
 ### Running
 either lauch it using a docker command or connect to 127.0.0.1:9000 on the portainer interface and use that to execute the container
