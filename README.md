@@ -80,3 +80,10 @@ either lauch it using a docker command or connect to 127.0.0.1:9000 on the porta
 ```
 docker run telegrammusic
 ```
+
+## Compatibility
+
+| System        | Python Version| DockerVersion  |
+| ------------- |:-------------:| --------------:|
+| Ubuntu 20.04 amd64 | Working | untested |
+| raspios armf64 | untested | Working |
