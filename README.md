@@ -1,5 +1,9 @@
-# TelegramSongDownloader
+# Telegram Song Downloader
 Telegram that download the song at the provided URL and upload it somewhere via SFTP
+## Disclaimer
+Downloading copyrighted song is illegal in some countrys.
+check your local regulation and dont do anything illegal.
+
 ## Use Case
 You have a NAS and you're not a big fan of not having a local copy of your music with you.
 But manually downloading, renaming and filling metadata for your song is a tedious process
