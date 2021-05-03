@@ -76,3 +76,7 @@ TELEGRAMBOTTOKEN="" replace with the value you get using the [bot Father](https:
 
 ### Running
 either lauch it using a docker command or connect to 127.0.0.1:9000 on the portainer interface and use that to execute the container
+
+```
+docker run telegrammusic
+```
