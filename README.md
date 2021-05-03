@@ -14,18 +14,23 @@ This tool does just that. It is still up to you to sync your music accross your 
 Paste the link to the video you want to get the audio track
 when promted give it a name (the program try to find the correct but in the case its wrong you can enter it manually)
 wait and enjoy for your music to be send to the SFTP server (your NAS for instance)
+
 ![image](https://user-images.githubusercontent.com/15912256/116869015-2d09c000-ac10-11eb-9e81-2ba53bcca5ba.png)
 
 ## Normal Installation on debian like linux
 ### Cloning the repo
 ```git clone https://github.com/nathmo/TelegramSongDownloader.git ```
+
 ```cd TelegramSongDownloader```
 ### Installings dependencies
 ```sudo apt-get install python3, ffmpeg, python3-pip```
+
 ```pip3 install -r requirements.txt```
 ### Running
 ```python3 TelegramMusic.py SFTPHOST SFTPUSERNAME SFTPPASSWORD REMOTEPATHTOMUSICFOLDER CLIENTELEGRAMID BOTTELEGRAMID```
+
 (do not change the order of the value)
+
 ```
 SFTPPASSWORD this is your ssh password
 SFTPUSERNAME this is your ssh username
@@ -38,13 +43,18 @@ TELEGRAMBOTTOKEN replace with the value you get using the [bot Father](https://w
 ## Docker Installation
 ### Cloning the repo
 ```git clone https://github.com/nathmo/TelegramSongDownloader.git```
+
 ```cd TelegramSongDownloader```
 ### Installings dependencies
 
 ```curl -fsSL https://get.docker.com -o get-docker.sh```
+
 ```sudo sh get-docker.sh```
+
 ```sudo usermod -aG docker pi```
+
 ```docker volume create portainer_data```
+
 ```docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce```
 
 ### Building the image
