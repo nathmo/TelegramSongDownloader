@@ -5,6 +5,7 @@ ADD trashwords.txt /
 RUN apk update
 RUN apk upgrade
 RUN apk add gcc
+RUN apk add make
 RUN apk add linux-headers
 RUN apk add libc-dev
 RUN apk add libffi-dev
