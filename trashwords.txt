@@ -12,3 +12,5 @@ ft.
 Visualizer
 audio
 &
+VIP
+Video
