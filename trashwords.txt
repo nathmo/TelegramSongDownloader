@@ -9,3 +9,6 @@ hd
 audio
 quality
 ft.
+Visualizer
+audio
+&

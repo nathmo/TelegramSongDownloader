@@ -18,8 +18,6 @@ import os
 import editdistance
 import eyed3
 import sys
-import time
-import magic
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
