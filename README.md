@@ -40,7 +40,7 @@ TELEGRAMID this is the telgram id of the account that will use this app. you can
 TELEGRAMBOTTOKEN replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
 ```
 
-## Docker Installation
+## Docker Installation from source
 ### Cloning the repo
 ```git clone https://github.com/nathmo/TelegramSongDownloader.git```
 
@@ -79,6 +79,13 @@ either lauch it using a docker command or connect to 127.0.0.1:9000 on the porta
 
 ```
 docker run telegrammusic
+```
+
+
+## Docker Installation from dockerhub
+
+```
+docker run nathmo/telegrammusic
 ```
 
 ## Compatibility
