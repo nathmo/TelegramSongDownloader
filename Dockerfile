@@ -9,6 +9,7 @@ RUN apk add g++
 RUN apk add make
 RUN apk add musl-dev
 RUN apk add rust
+RUN apk add openssl
 RUN apk add cargo
 RUN apk add linux-headers
 RUN apk add libc-dev
