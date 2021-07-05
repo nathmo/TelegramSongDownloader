@@ -25,12 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 class scope():
-    def __init__(self, SFTPPASSWORD, SFTPUSERNAME, HOST, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN):
+    def __init__(self, SFTPPASSWORD, SFTPUSERNAME, HOST, PORT, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN):
         self.STATE = 0
         self.video_metadata = {}
         self.SFTPPASSWORD = SFTPPASSWORD
         self.SFTPUSERNAME = SFTPUSERNAME
         self.HOST = HOST
+        self.PORT = PORT
         self.SFTPREMOTEBASEPATH = SFTPREMOTEBASEPATH
         self.TELEGRAMID = TELEGRAMID
         self.TELEGRAMBOTTOKEN = TELEGRAMBOTTOKEN
@@ -187,7 +188,7 @@ class scope():
         try:
             cnopts = pysftp.CnOpts()
             cnopts.hostkeys = None
-            srv = pysftp.Connection(host=self.HOST, username=self.SFTPUSERNAME, password=self.SFTPPASSWORD, cnopts=cnopts)
+            srv = pysftp.Connection(host=self.HOST, port=self.PORT, username=self.SFTPUSERNAME, password=self.SFTPPASSWORD, cnopts=cnopts)
             print("Connected to Host")
             try:
                 with srv.cd(self.SFTPREMOTEBASEPATH):  # chdir to music folder
@@ -353,17 +354,19 @@ def main():
         SFTPPASSWORD = os.environ['SFTPPASSWORD']
         SFTPUSERNAME = os.environ['SFTPUSERNAME']
         HOST = os.environ['SFTPHOST']
+        PORT = os.environ['SFTPPORT']
         SFTPREMOTEBASEPATH = os.environ['SFTPREMOTEBASEPATH']
         TELEGRAMID = os.environ['TELEGRAMID']
         TELEGRAMBOTTOKEN = os.environ['TELEGRAMBOTTOKEN']
     except:
         try:
             HOST = sys.argv[1]
-            SFTPUSERNAME = sys.argv[2]
-            SFTPPASSWORD = sys.argv[3]
-            SFTPREMOTEBASEPATH = sys.argv[4]
-            TELEGRAMID = sys.argv[5]
-            TELEGRAMBOTTOKEN = sys.argv[6]
+            PORT = sys.argv[2]
+            SFTPUSERNAME = sys.argv[3]
+            SFTPPASSWORD = sys.argv[4]
+            SFTPREMOTEBASEPATH = sys.argv[5]
+            TELEGRAMID = sys.argv[6]
+            TELEGRAMBOTTOKEN = sys.argv[7]
         except:
             print("Either set the env variable or provided the argument to the command line")
             print("You MUST use the following order for the command line argument")
@@ -372,6 +375,7 @@ def main():
             print("SFTPPASSWORD")
             print("SFTPUSERNAME")
             print("SFTPHOST")
+            print("SFTPPORT")
             print("SFTPREMOTEBASEPATH")
             print("TELEGRAMID")
             print("TELEGRAMBOTTOKEN")
@@ -384,7 +388,7 @@ def main():
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    sc = scope(SFTPPASSWORD, SFTPUSERNAME, HOST, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN)
+    sc = scope(SFTPPASSWORD, SFTPUSERNAME, HOST, PORT, SFTPREMOTEBASEPATH, TELEGRAMID, TELEGRAMBOTTOKEN)
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("help", sc.welcome))
     dp.add_handler(CommandHandler("deltw", sc.del_trashword))
