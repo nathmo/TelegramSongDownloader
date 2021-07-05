@@ -1,5 +1,7 @@
 setuptools_rust
 docker-compose
+pynacl
+cryptography==3.4.6
 python-telegram-bot
 editdistance
 eyed3
