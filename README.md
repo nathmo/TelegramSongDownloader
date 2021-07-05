@@ -27,7 +27,7 @@ wait and enjoy for your music to be send to the SFTP server (your NAS for instan
 
 ```pip3 install -r requirements.txt```
 ### Running
-```python3 TelegramMusic.py SFTPHOST SFTPUSERNAME SFTPPASSWORD REMOTEPATHTOMUSICFOLDER CLIENTELEGRAMID BOTTELEGRAMID```
+```python3 TelegramMusic.py SFTPHOST SFTPPORT SFTPUSERNAME SFTPPASSWORD REMOTEPATHTOMUSICFOLDER CLIENTELEGRAMID BOTTELEGRAMID```
 
 (do not change the order of the value)
 
@@ -35,6 +35,7 @@ wait and enjoy for your music to be send to the SFTP server (your NAS for instan
 SFTPPASSWORD this is your ssh password
 SFTPUSERNAME this is your ssh username
 SFTPHOST this is the SFTP Host (any server with SSH enabled will do)
+SFTPPORt this is the SFTP port of the server (usually 22)
 SFTPREMOTEBASEPATH replace this value with the absolute path where you want to store the song on your server
 TELEGRAMID this is the telgram id of the account that will use this app. you can find it [there](https://www.technobezz.com/how-to-find-user-ids-in-telegram/)
 TELEGRAMBOTTOKEN replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
@@ -66,6 +67,7 @@ Edit the settings and fill the followings value :
 SFTPPASSWORD="" this is your ssh password
 SFTPUSERNAME="" this is your ssh username
 SFTPHOST="" this is the SFTP Host (any server with SSH enabled will do)
+SFTPPORT="" this is the SFTP port, usually 22
 SFTPREMOTEBASEPATH="" replace this value with the absolute path where you want to store the song on your server
 TELEGRAMID="" this is the telgram id of the account that will use this app. you can find it [there](https://www.technobezz.com/how-to-find-user-ids-in-telegram/)
 TELEGRAMBOTTOKEN="" replace with the value you get using the [bot Father](https://www.telegram-group.com/en/blog/create-bot-telegram/)
