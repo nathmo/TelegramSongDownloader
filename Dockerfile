@@ -17,7 +17,7 @@ RUN apk add python3
 RUN apk add python3-dev
 RUN apk add ffmpeg
 RUN apk add py3-pip
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r --no-use-pep517 requirements.txt
 ENV SFTPPASSWORD=""
 ENV SFTPUSERNAME=""
 ENV SFTPHOST=""
