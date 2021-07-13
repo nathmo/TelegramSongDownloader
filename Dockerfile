@@ -23,7 +23,6 @@ RUN apk add libsodium
 RUN apk add build-base 
 RUN apk add libffi-dev 
 RUN apk add libsodium-dev
-RUN apk add python3-wheel
 RUN apk add ffmpeg
 RUN apk add py3-pynacl
 RUN apk add py3-pip
