@@ -24,7 +24,6 @@ RUN apk add --virtual .voice-build-deps build-base libffi-dev libsodium-dev
 RUN apk del .voice-build-deps
 RUN apk add ffmpeg
 RUN apk add py3-pip
-RUN SODIUM_INSTALL=system pip3 install pynacl
 RUN pip3 install -r requirements.txt
 ENV SFTPPASSWORD=""
 ENV SFTPUSERNAME=""
