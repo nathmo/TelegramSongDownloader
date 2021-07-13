@@ -17,10 +17,12 @@ RUN apk add libffi-dev
 RUN apk add openssl-dev
 RUN apk add python3
 RUN apk add python3-dev
-apk add libffi libsodium opus-dev
-apk add --virtual .voice-build-deps build-base libffi-dev libsodium-dev
-pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]
-apk del .voice-build-deps
+RUN apk add libffi
+RUN apk add opus-dev
+RUN apk add libsodium
+RUN apk add --virtual .voice-build-deps build-base libffi-dev libsodium-dev
+RUN pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]
+RUN apk del .voice-build-deps
 RUN apk add ffmpeg
 RUN apk add py3-pip
 RUN SODIUM_INSTALL=system pip3 install pynacl
