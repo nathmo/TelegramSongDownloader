@@ -21,7 +21,6 @@ RUN apk add libffi
 RUN apk add opus-dev
 RUN apk add libsodium
 RUN apk add --virtual .voice-build-deps build-base libffi-dev libsodium-dev
-RUN pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]
 RUN apk del .voice-build-deps
 RUN apk add ffmpeg
 RUN apk add py3-pip
