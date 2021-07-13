@@ -20,8 +20,9 @@ RUN apk add python3-dev
 RUN apk add libffi
 RUN apk add opus-dev
 RUN apk add libsodium
-RUN apk add --virtual .voice-build-deps build-base libffi-dev libsodium-dev
-RUN apk del .voice-build-deps
+RUN apk add build-base 
+RUN apk add libffi-dev 
+RUN apk add libsodium-dev
 RUN apk add ffmpeg
 RUN apk add py3-pip
 RUN pip3 install -r requirements.txt
