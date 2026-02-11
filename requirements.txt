@@ -1,6 +1,6 @@
 setuptools_rust
 docker-compose
-cryptography==42.0.4
+cryptography==46.0.5
 python-telegram-bot
 editdistance
 eyed3
